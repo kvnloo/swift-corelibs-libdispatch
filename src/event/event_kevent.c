@@ -912,8 +912,12 @@ _dispatch_kq_deferred_find_slot(dispatch_deferred_items_t ddi,
 	int i;
 
 	for (i = 0; i < ddi->ddi_nevents; i++) {
+		// knotes that are not EV_UDATA_SPECIFIC are not keyed by udata
+		// on platforms without EV_UDATA_SPECIFIC (*BSD), the macro is
+		// set to 0 so this still work
 		if (events[i].filter == filter && events[i].ident == ident &&
-				events[i].udata == udata) {
+				(!(events[i].flags & EV_UDATA_SPECIFIC) ||
+				events[i].udata == udata)) {
 			break;
 		}
 	}
